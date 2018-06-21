@@ -97,9 +97,15 @@ class Metronome extends Component {
       this.click1.play();
     }
 
+    
+
     this.setState(state => ({
       count: (state.count + 1) % state.beatsPerMeasure
     }));
+    window.globalCounter = count;
+    if (window.shape != undefined){
+      window.shape.print(count+1);
+    }
   }
 
   toggleSettings = () => {
@@ -139,10 +145,10 @@ class Metronome extends Component {
               isPlaying={playing}
               handleOnClick={this.startStop} />
           </div>
-
-          <CountWrapper>
+          {window.shape == undefined && <CountWrapper>
             {count === 0 ? beatsPerMeasure : count}
-          </CountWrapper>
+          </CountWrapper>}
+          
         </MetronomeWrapper>
       </div>
     );
