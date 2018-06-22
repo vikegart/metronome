@@ -15,4 +15,5 @@ body {
 #root{
     position: relative;
     z-index: 999;
+    color: cornflowerblue;
 }

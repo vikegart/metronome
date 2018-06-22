@@ -11,7 +11,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var STEP_LENGTH = 1;
-var CELL_SIZE = 10;
+var CELL_SIZE = 8;
 var BORDER_WIDTH = 2;
 var MAX_FONT_SIZE = 500;
 var MAX_ELECTRONS = 100;
@@ -19,8 +19,8 @@ var CELL_DISTANCE = CELL_SIZE + BORDER_WIDTH;
 
 // shorter for brighter paint
 // be careful of performance issue
-var CELL_REPAINT_INTERVAL = [300, // from
-500];
+var CELL_REPAINT_INTERVAL = [50, // orig from 300
+101];
 
 var BG_COLOR = '#1d2227';
 var BORDER_COLOR = '#13191f';
@@ -800,8 +800,11 @@ var shape = {
 
             return;
         }
-
-        this.spiral();
+        if (text == '1'){
+            this.spiral({newStep: 2});
+        } else {
+            this.spiral();
+        }
 
         this.lastText = text;
 
@@ -814,13 +817,17 @@ var shape = {
 
             var cell = new Cell(i, j, _this2.cellOptions);
 
-            cell.scheduleUpdate(200);
+            cell.scheduleUpdate(100);
             cell.pin();
         });
     },
     spiral: function spiral() {
         var _ref17 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
             radius = _ref17.radius,
+
+            _ref17$newStep = _ref17.newStep,
+            newStep = _ref17$newStep === undefined ? 0 : _ref17$newStep,
+
             _ref17$increment = _ref17.increment,
             increment = _ref17$increment === undefined ? 0 : _ref17$increment,
             _ref17$reverse = _ref17.reverse,
@@ -846,7 +853,7 @@ var shape = {
         var deg = _.random(360);
         var r = radius === undefined ? Math.floor(Math.min(cols, rows) / 3) : radius;
 
-        var step = reverse ? 15 : -15;
+        var step = reverse ? newStep || 15 : -newStep || -15;
         var max = Math.abs(360 / step);
 
         while (cnt <= max) {
@@ -865,7 +872,8 @@ var shape = {
 
             });
 
-            cell.delay(cnt * 16);
+            newStep && cell.delay(cnt * 2);
+            !newStep && cell.delay(cnt * 16);
 
             cnt++;
             deg += step;

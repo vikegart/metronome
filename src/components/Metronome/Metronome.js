@@ -25,6 +25,7 @@ const CountWrapper = styled.div`
 class Metronome extends Component {
   constructor(props) {
     super(props);
+    console.log(process.env.NODE_ENV =='development');
 
     this.state = {
       playing: false,
@@ -34,8 +35,14 @@ class Metronome extends Component {
       settingsOpen: false
     };
 
+
     this.click1 = new Audio(click1);
     this.click2 = new Audio(click2);
+  }
+
+  componentDidMount(){
+    process.env.NODE_ENV == 'development' && this.startStop();
+    process.env.NODE_ENV == 'development' && (this.state.playing = true);
   }
 
   handleBpmChange = event => {
