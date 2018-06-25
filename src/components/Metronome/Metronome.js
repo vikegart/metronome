@@ -25,14 +25,15 @@ const CountWrapper = styled.div`
 class Metronome extends Component {
   constructor(props) {
     super(props);
-    console.log(process.env.NODE_ENV =='development');
+    console.log(process.env.NODE_ENV === 'development');
 
     this.state = {
       playing: false,
       count: 0,
       bpm: 100,
       beatsPerMeasure: 4,
-      settingsOpen: false
+      settingsOpen: false,
+      isLowMode: false
     };
 
 
@@ -40,9 +41,9 @@ class Metronome extends Component {
     this.click2 = new Audio(click2);
   }
 
-  componentDidMount(){
-    process.env.NODE_ENV == 'development' && this.startStop();
-    process.env.NODE_ENV == 'development' && (this.state.playing = true);
+  componentDidMount() {
+    process.env.NODE_ENV === 'development' && this.startStop();
+    process.env.NODE_ENV === 'development' &&  this.setState({ playing : true });
   }
 
   handleBpmChange = event => {
@@ -104,14 +105,11 @@ class Metronome extends Component {
       this.click1.play();
     }
 
-    
-
     this.setState(state => ({
       count: (state.count + 1) % state.beatsPerMeasure
     }));
-    window.globalCounter = count;
-    if (window.shape != undefined){
-      window.shape.print(count+1);
+    if (window.shape !== undefined) {
+      !window.LOW_MODE && window.shape.print(count + 1);
     }
   }
 
@@ -119,8 +117,18 @@ class Metronome extends Component {
     this.setState({ settingsOpen: !this.state.settingsOpen })
   }
 
+  toggleLowVisualMode = () => {
+    this.setState({
+      isLowMode: !this.state.isLowMode,
+    }, () => {
+      window.LOW_MODE = !window.LOW_MODE;
+      window.LOW_MODE && window.shape.destroy();
+      !window.LOW_MODE && window.shape.init();
+      })
+  }
+
   render() {
-    const { playing, bpm, count, beatsPerMeasure } = this.state;
+    const { playing, bpm, count, beatsPerMeasure, isLowMode } = this.state;
 
     return (
       <div>
@@ -151,11 +159,21 @@ class Metronome extends Component {
             <ActionButton
               isPlaying={playing}
               handleOnClick={this.startStop} />
+
+            
+            <FontAwesomeIcon
+              icon= {isLowMode ? 'low-vision' : 'eye'}
+              className='low-icon'
+              size='2x'
+              onClick={this.toggleLowVisualMode}
+            />
+            <strong>Enable\Disable Low Mode</strong>
+
           </div>
-          {window.shape == undefined && <CountWrapper>
-            {count === 0 ? beatsPerMeasure : count}
-          </CountWrapper>}
-          
+          {(window.shape === undefined || window.LOW_MODE) 
+              && <CountWrapper>
+                  {count === 0 ? beatsPerMeasure : count}
+                </CountWrapper>}
         </MetronomeWrapper>
       </div>
     );

@@ -1,4 +1,18 @@
-
+function detectMobile() { 
+    if( navigator.userAgent.match(/Android/i)
+    || navigator.userAgent.match(/webOS/i)
+    || navigator.userAgent.match(/iPhone/i)
+    || navigator.userAgent.match(/iPad/i)
+    || navigator.userAgent.match(/iPod/i)
+    || navigator.userAgent.match(/BlackBerry/i)
+    || navigator.userAgent.match(/Windows Phone/i)
+    ){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -10,8 +24,9 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var LOW_MODE = true;
 var STEP_LENGTH = 1;
-var CELL_SIZE = 8;
+var CELL_SIZE = detectMobile()? 4 : 8;
 var BORDER_WIDTH = 2;
 var MAX_FONT_SIZE = 500;
 var MAX_ELECTRONS = 100;
@@ -19,8 +34,8 @@ var CELL_DISTANCE = CELL_SIZE + BORDER_WIDTH;
 
 // shorter for brighter paint
 // be careful of performance issue
-var CELL_REPAINT_INTERVAL = [50, // orig from 300
-101];
+var CELL_REPAINT_INTERVAL = [500, // orig from 300 or 50 and 101
+501];
 
 var BG_COLOR = '#1d2227';
 var BORDER_COLOR = '#13191f';
@@ -117,7 +132,8 @@ var FullscreenCanvas = function () {
     }, {
         key: 'blendBackground',
         value: function blendBackground(background) {
-            var opacity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.05;
+            var opacity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.15;
+            LOW_MODE && (opacity = 1);
 
             return this.paint(function (ctx, _ref5) {
                 var realWidth = _ref5.realWidth,
@@ -370,6 +386,7 @@ var Cell = function () {
         key: 'pin',
         value: function pin() {
             var lifeTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1 >>> 1;
+            LOW_MODE && (lifeTime = 5000)
 
             this.expireAt = Date.now() + lifeTime;
 
@@ -817,7 +834,7 @@ var shape = {
 
             var cell = new Cell(i, j, _this2.cellOptions);
 
-            cell.scheduleUpdate(100);
+            cell.scheduleUpdate(0,0);
             cell.pin();
         });
     },

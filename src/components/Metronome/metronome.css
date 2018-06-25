@@ -12,3 +12,9 @@
   transform: scale(1.1);
 }
 
+.low-icon{
+  display: block;
+  margin: auto;
+  margin-top: 0.5em;
+}
+
