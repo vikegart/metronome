@@ -1,1 +1,0 @@
-{"version":3,"sources":["components/Metronome/metronome.css"],"names":[],"mappings":"AAAA,QACE,YAAa,CAGf,eACE,YACA,WAAa","file":"static/css/main.f9ac8e82.css","sourcesContent":[".hidden {\r\n  display:none;\r\n}\r\n\r\n.settings-icon{\r\n  margin: 0.4em;\r\n  float: right;\r\n}\r\n\n\n\n// WEBPACK FOOTER //\n// ./src/components/Metronome/metronome.css"],"sourceRoot":""}
