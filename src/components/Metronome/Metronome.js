@@ -19,14 +19,12 @@ const MetronomeWrapper = styled.div`
 
 const CountWrapper = styled.div`
   font-family: cursive;
-  font-size: 35em;
+  font-size: 20em;
 `
 
 class Metronome extends Component {
   constructor(props) {
     super(props);
-    console.log(process.env.NODE_ENV === 'development');
-
     this.state = {
       playing: false,
       count: 0,
@@ -43,7 +41,7 @@ class Metronome extends Component {
 
   componentDidMount() {
     process.env.NODE_ENV === 'development' && this.startStop();
-    process.env.NODE_ENV === 'development' &&  this.setState({ playing : true });
+    process.env.NODE_ENV === 'development' && this.setState({ playing: true });
   }
 
   handleBpmChange = event => {
@@ -57,9 +55,9 @@ class Metronome extends Component {
       this.setState({
         count: 0,
         bpm
-      });
+      }, () => window.BPM = this.state.bpm);
     } else {
-      this.setState({ bpm });
+      this.setState({ bpm }, () => window.BPM = this.state.bpm);
     }
   }
 
@@ -118,13 +116,18 @@ class Metronome extends Component {
   }
 
   toggleLowVisualMode = () => {
+    console.log('call tog')
     this.setState({
-      isLowMode: !this.state.isLowMode,
+      isLowMode: !this.state.isLowMode
     }, () => {
-      window.LOW_MODE = !window.LOW_MODE;
-      window.LOW_MODE && window.shape.destroy();
-      !window.LOW_MODE && window.shape.init();
-      })
+      console.log(this.state.isLowMode)
+      
+      if (this.state.isLowMode) {
+        window.shape.destroy();
+      } else {
+        window.shape.init();
+      }
+    });
   }
 
   render() {
@@ -160,9 +163,9 @@ class Metronome extends Component {
               isPlaying={playing}
               handleOnClick={this.startStop} />
 
-            
+
             <FontAwesomeIcon
-              icon= {isLowMode ? 'low-vision' : 'eye'}
+              icon={isLowMode ? 'low-vision' : 'eye'}
               className='low-icon'
               size='2x'
               onClick={this.toggleLowVisualMode}
@@ -170,10 +173,10 @@ class Metronome extends Component {
             <strong>Enable\Disable Low Mode</strong>
 
           </div>
-          {(window.shape === undefined || window.LOW_MODE) 
-              && <CountWrapper>
-                  {count === 0 ? beatsPerMeasure : count}
-                </CountWrapper>}
+          {(window.shape === undefined || this.state.isLowMode)
+            && <CountWrapper>
+              {count === 0 ? beatsPerMeasure : count}
+            </CountWrapper>}
         </MetronomeWrapper>
       </div>
     );
