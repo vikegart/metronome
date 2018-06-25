@@ -1,6 +1,21 @@
-var LOW_MODE = false;
+function detectMobile() {
+    if (navigator.userAgent.match(/Android/i)
+        || navigator.userAgent.match(/webOS/i)
+        || navigator.userAgent.match(/iPhone/i)
+        || navigator.userAgent.match(/iPad/i)
+        || navigator.userAgent.match(/iPod/i)
+        || navigator.userAgent.match(/BlackBerry/i)
+        || navigator.userAgent.match(/Windows Phone/i)
+    ) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 const STEP_LENGTH = 1;
-const CELL_SIZE = 10;
+const CELL_SIZE = detectMobile() ? 4 : 8;
 const BORDER_WIDTH = 2;
 const MAX_FONT_SIZE = 500;
 const MAX_ELECTRONS = 100;
@@ -160,7 +175,7 @@ class FullscreenCanvas {
         try {
             window.removeEventListener('resize', this.handleResize);
             this.container.removeChild(this.canvas);
-        } catch (e) {}
+        } catch (e) { }
     }
 }
 
@@ -716,7 +731,14 @@ var shape = {
             return;
         }
 
-        this.spiral();
+        const cols = Math.floor(mainLayer.width / CELL_DISTANCE);
+        if (cols > 90) {
+            if (text == '1') {
+                this.spiral({ newStep: 2 });
+            } else {
+                this.spiral();
+            }
+        }
 
         this.lastText = text;
 
@@ -725,7 +747,17 @@ var shape = {
         matrix.forEach(([i, j]) => {
             const cell = new Cell(i, j, this.cellOptions);
 
-            cell.scheduleUpdate(200);
+            if (90 <= window.BPM && window.BPM <= 120) {
+                cell.scheduleUpdate(200);
+            }
+            if (121 <= window.BPM) {
+                cell.scheduleUpdate(0, 0);
+            }
+            if (window.BPM <= 90) {
+                cell.scheduleUpdate(200);
+            } else {
+                cell.scheduleUpdate();
+            }
             cell.pin();
         });
     },
@@ -733,7 +765,8 @@ var shape = {
     spiral({
         radius,
         increment = 0,
-        reverse = false,
+        newStep = 0,
+        reverse = true,
         lifeTime = 250,
         electronCount = 1,
         forceElectrons = true,
@@ -750,10 +783,11 @@ var shape = {
         const oy = Math.floor(rows / 2);
 
         let cnt = 1;
-        let deg = _.random(360);
+        //let deg = _.random(360);
+        let deg = 270;
         let r = radius === undefined ? Math.floor(Math.min(cols, rows) / 3) : radius;
 
-        const step = reverse ? 15 : -15;
+        const step = reverse ? newStep || 15 : -newStep || -15;
         const max = Math.abs(360 / step);
 
         while (cnt <= max) {
@@ -772,7 +806,8 @@ var shape = {
 
             });
 
-            cell.delay(cnt * 16);
+            newStep && cell.delay(cnt * 2);
+            !newStep && cell.delay(cnt * 16);
 
             cnt++;
             deg += step;
