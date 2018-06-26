@@ -40,8 +40,8 @@ class Metronome extends Component {
   }
 
   componentDidMount() {
-    process.env.NODE_ENV === 'development' && this.startStop();
-    process.env.NODE_ENV === 'development' && this.setState({ playing: true });
+    // process.env.NODE_ENV === 'development' && this.startStop();
+    // process.env.NODE_ENV === 'development' && this.setState({ playing: true });
   }
 
   handleBpmChange = event => {
@@ -76,6 +76,7 @@ class Metronome extends Component {
   }
 
   startStop = () => {
+    clearInterval(window.timerId);
     if (this.state.playing) {
       // Stop the timer
       clearInterval(this.timer);

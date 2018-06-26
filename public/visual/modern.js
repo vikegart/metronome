@@ -13,7 +13,7 @@ function detectMobile() {
         return false;
     }
 }
-
+let FAST_RENDER = false;
 const STEP_LENGTH = 1;
 const CELL_SIZE = detectMobile() ? 4 : 8;
 const BORDER_WIDTH = 2;
@@ -112,8 +112,8 @@ class FullscreenCanvas {
 
     blendBackground(background, opacity = 0.05) {
         return this.paint((ctx, { realWidth, realHeight, width, height }) => {
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.globalAlpha = opacity;
+            !FAST_RENDER && (ctx.globalCompositeOperation = 'source-over');
+            !FAST_RENDER && (ctx.globalAlpha = opacity);
 
             ctx.drawImage(background, 0, 0, realWidth, realHeight, 0, 0, width, height);
         });
@@ -328,8 +328,9 @@ class Cell {
     scheduleUpdate(
         t1 = CELL_REPAINT_INTERVAL[0],
         t2 = CELL_REPAINT_INTERVAL[1],
-    ) {
-        this.nextUpdate = Date.now() + _.random(t1, t2);
+    ) { 
+        FAST_RENDER && (this.nextUpdate = Date.now());
+        !FAST_RENDER && (this.nextUpdate = Date.now() + _.random(t1, t2));
     }
 
     paintNextTo(layer = new FullscreenCanvas()) {
@@ -748,16 +749,17 @@ var shape = {
             const cell = new Cell(i, j, this.cellOptions);
 
             if (90 <= window.BPM && window.BPM <= 120) {
+                FAST_RENDER = false;
                 cell.scheduleUpdate(200);
             }
             if (121 <= window.BPM) {
+                FAST_RENDER = true;
                 cell.scheduleUpdate(0, 0);
             }
             if (window.BPM <= 90) {
-                cell.scheduleUpdate(200);
-            } else {
+                FAST_RENDER = false;
                 cell.scheduleUpdate();
-            }
+            } 
             cell.pin();
         });
     },
@@ -902,6 +904,43 @@ clearTimeout(timer);
 
 shape.init();
 shape.print('drums');
+
+let repeatableSymbol = 0;
+
+var timerId = setInterval(function() {
+    switch (repeatableSymbol){
+        case 1:
+            shape.print('🥁');
+            break;
+        case 2:
+            shape.print('guitar');
+            break;
+        case 3:
+            shape.print('🎸');
+            break;
+        case 4:
+            shape.print('music');
+            break;
+        case 5:
+            shape.print('🎶');
+            break;
+        case 6:
+            shape.print('burn it out');
+            break;
+        case 7:
+            shape.print('🔥🔥🔥');
+            break;
+        
+    }
+    
+    repeatableSymbol++;
+  }, 2000);
+  
+  // через 16 сек остановить повторы
+  setTimeout(function() {
+    clearInterval(timerId);
+    repeatableSymbol = 0;
+  }, 18000);
 
 // prevent zoom
 document.addEventListener('touchmove', e => e.preventDefault());
